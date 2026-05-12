@@ -1,0 +1,31 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Dart / Flutter — always LF
+*.dart text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.xml text eol=lf
+*.gradle text eol=lf
+*.kts text eol=lf
+*.properties text eol=lf
+*.plist text eol=lf
+*.pbxproj text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# Binary assets — no diff, no merge
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.jks binary
+*.p8 binary
+*.p12 binary
+*.ipa binary
+*.aab binary
+*.apk binary
