@@ -49,8 +49,9 @@ class _LanguagesStepState extends State<LanguagesStep> {
 
   void _add(String name) {
     if (name.trim().isEmpty) return;
-    if (_languages.any((l) => l.name.toLowerCase() == name.toLowerCase()))
+    if (_languages.any((l) => l.name.toLowerCase() == name.toLowerCase())) {
       return;
+    }
     setState(
       () => _languages.add(
         Language(id: _uuid.v4(), name: name.trim(), level: _selectedLevel),
