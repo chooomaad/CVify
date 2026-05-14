@@ -1,197 +1,47 @@
+```yaml
 workflows:
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # ANDROID RELEASE — APK + AAB
-  # ──────────────────────────────────────────────────────────────────────────
-  android-release:
-    name: Android Release (APK + AAB)
-    max_build_duration: 60
-    instance_type: linux_x2
-
-    environment:
-      flutter: stable
-      java: 17
-      groups:
-        - android_signing        # KEYSTORE_FILE, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
-      vars:
-        PACKAGE_NAME: "com.cvify.cvify"
-        APP_NAME: "CVify"
-
-    cache:
-      cache_paths:
-        - ~/.pub-cache
-        - ~/.gradle/caches
-        - ~/.gradle/wrapper
-        - $CM_BUILD_DIR/android/.gradle
-
-    triggering:
-      events:
-        - push
-        - tag
-      branch_patterns:
-        - pattern: main
-          include: true
-        - pattern: release/*
-          include: true
-      cancel_previous_builds: true
-
-    scripts:
-      - name: Set build number
-        script: |
-          BUILD_NUMBER=$(($(google-play get-latest-build-number \
-            --package-name "$PACKAGE_NAME" \
-            --tracks=internal 2>/dev/null || echo 0) + 1))
-          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $CM_ENV
-
-      - name: Get Flutter dependencies
-        script: flutter pub get
-
-      - name: Run Flutter analyze
-        script: flutter analyze --no-fatal-infos
-
-      - name: Run Flutter tests
-        script: flutter test
-
-      - name: Build APK (release)
-        script: |
-          flutter build apk \
-            --release \
-            --build-name=1.0.0 \
-            --build-number=$BUILD_NUMBER \
-            --dart-define=FLUTTER_BUILD_NAME=1.0.0 \
-            --dart-define=FLUTTER_BUILD_NUMBER=$BUILD_NUMBER
-
-      - name: Build AAB (release)
-        script: |
-          flutter build appbundle \
-            --release \
-            --build-name=1.0.0 \
-            --build-number=$BUILD_NUMBER
-
-      - name: Sign AAB
-        script: |
-          echo $KEYSTORE_FILE | base64 --decode > /tmp/keystore.jks
-          jarsigner \
-            -keystore /tmp/keystore.jks \
-            -storepass $KEYSTORE_PASSWORD \
-            -keypass $KEY_PASSWORD \
-            -sigalg SHA256withRSA \
-            -digestalg SHA-256 \
-            build/app/outputs/bundle/release/app-release.aab \
-            $KEY_ALIAS
-
-    artifacts:
-      - build/app/outputs/apk/release/app-release.apk
-      - build/app/outputs/bundle/release/app-release.aab
-      - build/app/outputs/apk/release/*.apk
-
-    publishing:
-      email:
-        recipients:
-          - builds@cvify.app
-        notify:
-          success: true
-          failure: true
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # IOS RELEASE — IPA + TestFlight
-  # ──────────────────────────────────────────────────────────────────────────
   ios-release:
-    name: iOS Release (IPA + TestFlight)
-    max_build_duration: 90
+    name: iOS Release
+    max_build_duration: 60
     instance_type: mac_mini_m2
 
     environment:
       flutter: stable
       xcode: latest
-      cocoapods: default
-      groups:
-        - app_store_connect      # APP_STORE_CONNECT_ISSUER_ID, _KEY_IDENTIFIER, _PRIVATE_KEY
-        - ios_signing            # CERTIFICATE_PRIVATE_KEY, PROVISIONING_PROFILE
+
       vars:
-        BUNDLE_ID: "com.cvify.cvify"
-        APP_NAME: "CVify"
-        XCODE_SCHEME: "Runner"
-        XCODE_WORKSPACE: "ios/Runner.xcworkspace"
+        BUNDLE_ID: "com.choumad.cvify"
 
     cache:
       cache_paths:
         - ~/.pub-cache
         - ~/Library/Caches/CocoaPods
 
-    triggering:
-      events:
-        - push
-        - tag
-      branch_patterns:
-        - pattern: main
-          include: true
-        - pattern: release/*
-          include: true
-      cancel_previous_builds: true
-
-    integrations:
-      app_store_connect: app_store_connect
-
     scripts:
-      - name: Set up keychain
-        script: |
-          keychain initialize
-
-      - name: Set up provisioning profiles
-        script: |
-          app-store-connect fetch-signing-files \
-            $BUNDLE_ID \
-            --type IOS_APP_STORE \
-            --create
-
-      - name: Set up signing certificate
-        script: |
-          keychain add-certificates
-
-      - name: Update Xcode project
-        script: |
-          xcode-project use-profiles
-
       - name: Get Flutter dependencies
-        script: flutter pub get
+        script: |
+          flutter pub get
 
       - name: Install CocoaPods
         script: |
-          cd ios && pod install --repo-update
+          cd ios
+          pod install
+          cd ..
 
-      - name: Run Flutter analyze
-        script: flutter analyze --no-fatal-infos
+      - name: Set up provisioning profiles
+        script: |
+          xcode-project use-profiles
 
       - name: Build IPA
         script: |
-          flutter build ipa \
-            --release \
-            --build-name=1.0.0 \
-            --build-number=$(($(app-store-connect get-latest-testflight-build-number \
-              "$BUNDLE_ID" 2>/dev/null || echo 0) + 1)) \
-            --export-options-plist=/Users/builder/export_options.plist
+          flutter build ipa --release
 
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
       - flutter_drive.log
 
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
-        submit_to_app_store: false   # Set true for direct App Store submission
-      email:
-        recipients:
-          - builds@cvify.app
-        notify:
-          success: true
-          failure: true
 
-  # ──────────────────────────────────────────────────────────────────────────
-  # WEB RELEASE — Firebase / Netlify / Vercel
-  # ──────────────────────────────────────────────────────────────────────────
   web-release:
     name: Web Release
     max_build_duration: 30
@@ -213,62 +63,19 @@ workflows:
       cancel_previous_builds: true
 
     scripts:
-  - name: Get Flutter dependencies
-    script: flutter pub get
-
-  - name: Run Flutter analyze
-    script: flutter analyze --no-fatal-infos
-
-  - name: Set up code signing
-    script: |
-      xcode-project use-profiles
-
-  - name: Build IPA
-    script: |
-      flutter build ipa --release
-
-  - name: Build web (release)
-    script: |
-      flutter build web \
-        --release \
-        --web-renderer canvaskit \
-        --base-href /
-
-    artifacts:
-      - build/web/
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # CI — Pull Request validation
-  # ──────────────────────────────────────────────────────────────────────────
-  pr-check:
-    name: PR Validation
-    max_build_duration: 20
-    instance_type: linux_x2
-
-    environment:
-      flutter: stable
-
-    cache:
-      cache_paths:
-        - ~/.pub-cache
-
-    triggering:
-      events:
-        - pull_request
-      branch_patterns:
-        - pattern: '*'
-          include: true
-      cancel_previous_builds: true
-
-    scripts:
       - name: Get Flutter dependencies
         script: flutter pub get
 
-      - name: Analyze
+      - name: Run Flutter analyze
         script: flutter analyze --no-fatal-infos
 
-      - name: Test
-        script: flutter test --coverage
+      - name: Build web (release)
+        script: |
+          flutter build web \
+            --release \
+            --web-renderer canvaskit \
+            --base-href /
 
-      - name: Format check
-        script: dart format lib/ --set-exit-if-changed
+    artifacts:
+      - build/web/
+```
