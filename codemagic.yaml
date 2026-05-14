@@ -213,18 +213,26 @@ workflows:
       cancel_previous_builds: true
 
     scripts:
-      - name: Get Flutter dependencies
-        script: flutter pub get
+  - name: Get Flutter dependencies
+    script: flutter pub get
 
-      - name: Run Flutter analyze
-        script: flutter analyze --no-fatal-infos
+  - name: Run Flutter analyze
+    script: flutter analyze --no-fatal-infos
 
-      - name: Build web (release)
-        script: |
-          flutter build web \
-            --release \
-            --web-renderer canvaskit \
-            --base-href /
+  - name: Set up code signing
+    script: |
+      xcode-project use-profiles
+
+  - name: Build IPA
+    script: |
+      flutter build ipa --release
+
+  - name: Build web (release)
+    script: |
+      flutter build web \
+        --release \
+        --web-renderer canvaskit \
+        --base-href /
 
     artifacts:
       - build/web/
