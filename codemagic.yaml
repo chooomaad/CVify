@@ -21,6 +21,10 @@ workflows:
         - ~/Library/Caches/CocoaPods
 
     scripts:
+      - name: Flutter clean
+        script: |
+          flutter clean
+
       - name: Get Flutter packages
         script: |
           flutter pub get
@@ -31,19 +35,18 @@ workflows:
           pod install
           cd ..
 
-      - name: Configure code signing
+      - name: Configure signing profiles
         script: |
           xcode-project use-profiles
 
       - name: Build App Store IPA
         script: |
-          flutter build ipa \
-            --release \
-            --export-method app-store
+          flutter build ipa --release --export-method=app-store
 
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
 
     publishing:
       app_store_connect:
@@ -63,8 +66,13 @@ workflows:
         - ~/.pub-cache
 
     scripts:
-      - flutter pub get
-      - flutter build web --release
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+
+      - name: Build web
+        script: |
+          flutter build web --release
 
     artifacts:
       - build/web/
