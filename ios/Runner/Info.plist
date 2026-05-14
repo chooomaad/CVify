@@ -57,7 +57,7 @@
 	</array>
 
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>CVify needs access to your photo library to add a profile photo to your resume.</string>
+	<string>CVify needs access to your photo library.</string>
 
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>CVify uses local network access for app functionality.</string>
@@ -73,13 +73,16 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	
-	 <key>NSCameraUsageDescription</key>
-	 <string>CVify needs access to the camera.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>CVify needs camera access to take profile photos.</string>
 
-     <key>NSPhotoLibraryAddUsageDescription</key>
-     <string>CVify needs access to save images.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>CVify needs permission to save photos.</string>
 
-     <key>NSMicrophoneUsageDescription</key>
-     <string>CVify needs access to the microphone.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>CVify needs microphone access.</string>
+
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
