@@ -131,7 +131,7 @@ workflows:
       cancel_previous_builds: true
 
     integrations:
-      app_store_connect: App Store Connect API Key
+      app_store_connect: app_store_connect
 
     scripts:
       - name: Set up keychain
