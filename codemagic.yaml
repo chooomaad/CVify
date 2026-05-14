@@ -11,9 +11,6 @@ workflows:
       flutter: stable
       xcode: latest
 
-      vars:
-        BUNDLE_ID: "com.choumad.cvify"
-
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.choumad.cvify
@@ -24,7 +21,7 @@ workflows:
         - ~/Library/Caches/CocoaPods
 
     scripts:
-      - name: Flutter packages
+      - name: Get Flutter packages
         script: |
           flutter pub get
 
@@ -38,9 +35,11 @@ workflows:
         script: |
           xcode-project use-profiles
 
-      - name: Build IPA
+      - name: Build App Store IPA
         script: |
-          flutter build ipa --release
+          flutter build ipa \
+            --release \
+            --export-method app-store
 
     artifacts:
       - build/ios/ipa/*.ipa
@@ -49,6 +48,7 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
+
 
   web-release:
     name: Web Release
