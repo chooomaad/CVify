@@ -72,5 +72,14 @@
 
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	
+	 <key>NSCameraUsageDescription</key>
+	 <string>CVify needs access to the camera.</string>
+
+     <key>NSPhotoLibraryAddUsageDescription</key>
+     <string>CVify needs access to save images.</string>
+
+     <key>NSMicrophoneUsageDescription</key>
+     <string>CVify needs access to the microphone.</string>
 </dict>
 </plist>
