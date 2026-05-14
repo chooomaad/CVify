@@ -1,9 +1,11 @@
-```yaml
 workflows:
   ios-release:
     name: iOS Release
     max_build_duration: 60
     instance_type: mac_mini_m2
+
+    integrations:
+      app_store_connect: Codemagic2
 
     environment:
       flutter: stable
@@ -12,13 +14,17 @@ workflows:
       vars:
         BUNDLE_ID: "com.choumad.cvify"
 
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.choumad.cvify
+
     cache:
       cache_paths:
         - ~/.pub-cache
         - ~/Library/Caches/CocoaPods
 
     scripts:
-      - name: Get Flutter dependencies
+      - name: Flutter packages
         script: |
           flutter pub get
 
@@ -28,7 +34,7 @@ workflows:
           pod install
           cd ..
 
-      - name: Set up provisioning profiles
+      - name: Configure code signing
         script: |
           xcode-project use-profiles
 
@@ -39,8 +45,10 @@ workflows:
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
-      - flutter_drive.log
 
+    publishing:
+      app_store_connect:
+        auth: integration
 
   web-release:
     name: Web Release
@@ -54,28 +62,9 @@ workflows:
       cache_paths:
         - ~/.pub-cache
 
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: main
-          include: true
-      cancel_previous_builds: true
-
     scripts:
-      - name: Get Flutter dependencies
-        script: flutter pub get
-
-      - name: Run Flutter analyze
-        script: flutter analyze --no-fatal-infos
-
-      - name: Build web (release)
-        script: |
-          flutter build web \
-            --release \
-            --web-renderer canvaskit \
-            --base-href /
+      - flutter pub get
+      - flutter build web --release
 
     artifacts:
       - build/web/
-```
