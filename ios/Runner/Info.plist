@@ -67,6 +67,14 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>CVify needs permission to save photos.</string>
 
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>CVify utilise le réseau local pour détecter et connecter certains services nécessaires au bon fonctionnement de l'application.</string>
+
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_dartobservatory._tcp</string>
+	</array>
+
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>
