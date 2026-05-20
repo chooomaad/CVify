@@ -25,6 +25,11 @@ workflows:
         script: |
           flutter clean
 
+      - name: Set unique iOS build number
+        script: |
+          chmod +x scripts/ci_set_build_number.sh
+          ./scripts/ci_set_build_number.sh
+
       - name: Get Flutter packages
         script: |
           flutter pub get
