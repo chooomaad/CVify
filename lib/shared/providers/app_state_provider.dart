@@ -1,7 +1,10 @@
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../core/utils/app_logger.dart';
 
 class AppState {
   final bool isOnboarded;
@@ -29,18 +32,20 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> _loadState() async {
-    final prefs = await SharedPreferences.getInstance();
-    final storedLang = prefs.getString('langCode');
-    // Migrate any previously stored 'ar' to 'fr' since Arabic is no longer supported
-    final lang =
-        (storedLang == 'ar' || storedLang == null)
-            ? _detectDeviceLang()
-            : storedLang;
-    state = state.copyWith(
-      isOnboarded: prefs.getBool('isOnboarded') ?? false,
-      isDarkMode: prefs.getBool('isDarkMode') ?? false,
-      langCode: lang,
-    );
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final storedLang = prefs.getString('langCode');
+      final lang = _sanitizeLang(storedLang);
+
+      state = state.copyWith(
+        isOnboarded: prefs.getBool('isOnboarded') ?? false,
+        isDarkMode: prefs.getBool('isDarkMode') ?? false,
+        langCode: lang,
+      );
+    } catch (error, stackTrace) {
+      AppLogger.error('Failed to load app state', error, stackTrace);
+      state = state.copyWith(langCode: _detectDeviceLang());
+    }
   }
 
   static String _detectDeviceLang() {
@@ -49,23 +54,46 @@ class AppStateNotifier extends StateNotifier<AppState> {
     return 'fr';
   }
 
+  static String _sanitizeLang(String? storedLang) {
+    if (storedLang == 'en' || storedLang == 'fr') {
+      return storedLang!;
+    }
+
+    return _detectDeviceLang();
+  }
+
   Future<void> setOnboarded() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isOnboarded', true);
-    state = state.copyWith(isOnboarded: true);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isOnboarded', true);
+      state = state.copyWith(isOnboarded: true);
+    } catch (error, stackTrace) {
+      AppLogger.error('Failed to save onboarding state', error, stackTrace);
+    }
   }
 
   Future<void> toggleDarkMode() async {
-    final prefs = await SharedPreferences.getInstance();
     final newValue = !state.isDarkMode;
-    await prefs.setBool('isDarkMode', newValue);
-    state = state.copyWith(isDarkMode: newValue);
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isDarkMode', newValue);
+      state = state.copyWith(isDarkMode: newValue);
+    } catch (error, stackTrace) {
+      AppLogger.error('Failed to toggle dark mode', error, stackTrace);
+    }
   }
 
   Future<void> setLang(String code) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('langCode', code);
-    state = state.copyWith(langCode: code);
+    final sanitizedCode = _sanitizeLang(code);
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('langCode', sanitizedCode);
+      state = state.copyWith(langCode: sanitizedCode);
+    } catch (error, stackTrace) {
+      AppLogger.error('Failed to save language preference', error, stackTrace);
+    }
   }
 }
 

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../core/l10n/translations.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/app_logger.dart';
 import '../../../shared/models/cv_model.dart';
 import '../../../shared/providers/cv_provider.dart';
 import 'steps/personal_info_step.dart';
@@ -24,6 +26,7 @@ class _CVBuilderScreenState extends ConsumerState<CVBuilderScreen> {
   int _currentStep = 0;
   late CVModel _cv;
   bool _isLoading = true;
+  String? _loadError;
 
   static const _stepCount = 5;
 
@@ -50,16 +53,29 @@ class _CVBuilderScreenState extends ConsumerState<CVBuilderScreen> {
   }
 
   Future<void> _initCV() async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    if (!mounted) return;
+    try {
+      await Future.delayed(const Duration(milliseconds: 200));
+      if (!mounted) return;
 
-    if (widget.cvId != null) {
-      final existing = ref.read(cvListProvider.notifier).getById(widget.cvId!);
-      _cv = existing ?? await _createNew();
-    } else {
-      _cv = await _createNew();
+      if (widget.cvId != null) {
+        final existing = ref.read(cvListProvider.notifier).getById(widget.cvId!);
+        _cv = existing ?? await _createNew();
+      } else {
+        _cv = await _createNew();
+      }
+
+      setState(() {
+        _isLoading = false;
+        _loadError = null;
+      });
+    } catch (error, stackTrace) {
+      AppLogger.error('Failed to initialize CV builder', error, stackTrace);
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _loadError = 'Unable to load your CV right now.';
+      });
     }
-    setState(() => _isLoading = false);
   }
 
   Future<CVModel> _createNew() async {
@@ -103,6 +119,43 @@ class _CVBuilderScreenState extends ConsumerState<CVBuilderScreen> {
       return Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_loadError != null) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          elevation: 0,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_rounded, size: 48),
+                const SizedBox(height: 16),
+                Text(
+                  _loadError!,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _isLoading = true;
+                      _loadError = null;
+                    });
+                    _initCV();
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
     }
 

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/l10n/translations.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/app_logger.dart';
 import '../../shared/models/cv_model.dart';
 import '../../shared/models/template_model.dart';
 import '../../shared/providers/cv_provider.dart';
@@ -25,20 +27,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return 0;
   }
 
-  void _onTap(BuildContext context, int index) {
+  Future<void> _onTap(BuildContext context, int index) async {
     switch (index) {
       case 0:
         context.go('/home');
+        return;
       case 1:
         context.go('/templates');
+        return;
       case 2:
-        ref.read(cvListProvider.notifier).create().then((cv) {
-          if (context.mounted) context.push('/cv-builder', extra: cv.id);
-        });
+        try {
+          final cv = await ref.read(cvListProvider.notifier).create();
+          if (context.mounted) {
+            context.push('/cv-builder', extra: cv.id);
+          }
+        } catch (error, stackTrace) {
+          AppLogger.error(
+            'Failed to create a CV from the home navigation',
+            error,
+            stackTrace,
+          );
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Unable to create a new CV right now.'),
+              ),
+            );
+          }
+        }
+        return;
       case 3:
         context.go('/premium');
+        return;
       case 4:
         context.go('/settings');
+        return;
+      default:
+        return;
     }
   }
 

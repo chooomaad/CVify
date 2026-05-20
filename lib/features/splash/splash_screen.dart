@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/app_logger.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,6 +17,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   late AnimationController _pulseController;
+  Timer? _navigationTimer;
 
   @override
   void initState() {
@@ -22,18 +27,29 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
-    _navigate();
+    _scheduleNavigation();
   }
 
-  Future<void> _navigate() async {
-    await Future.delayed(const Duration(milliseconds: 2800));
-    if (!mounted) return;
+  void _scheduleNavigation() {
+    _navigationTimer?.cancel();
+    _navigationTimer = Timer(const Duration(milliseconds: 2800), () {
+      if (!mounted) return;
 
-    context.go('/home');
+      try {
+        context.go('/home');
+      } catch (error, stackTrace) {
+        AppLogger.error(
+          'Failed to navigate away from splash screen',
+          error,
+          stackTrace,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
+    _navigationTimer?.cancel();
     _pulseController.dispose();
     super.dispose();
   }

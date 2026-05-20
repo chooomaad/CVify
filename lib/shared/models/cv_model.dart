@@ -44,6 +44,36 @@ class PersonalInfo {
     'website': website,
   };
 
+  PersonalInfo copyWith({
+    String? firstName,
+    String? lastName,
+    String? title,
+    String? email,
+    String? phone,
+    String? address,
+    String? city,
+    String? country,
+    String? summary,
+    String? photoPath,
+    String? linkedIn,
+    String? website,
+  }) {
+    return PersonalInfo(
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      title: title ?? this.title,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      address: address ?? this.address,
+      city: city ?? this.city,
+      country: country ?? this.country,
+      summary: summary ?? this.summary,
+      photoPath: photoPath ?? this.photoPath,
+      linkedIn: linkedIn ?? this.linkedIn,
+      website: website ?? this.website,
+    );
+  }
+
   factory PersonalInfo.fromJson(Map<String, dynamic> json) => PersonalInfo(
     firstName: json['firstName'] ?? '',
     lastName: json['lastName'] ?? '',

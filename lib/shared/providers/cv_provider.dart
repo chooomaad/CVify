@@ -1,7 +1,10 @@
 import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+
+import '../../core/utils/app_logger.dart';
 import '../models/cv_model.dart';
 
 class CVListNotifier extends StateNotifier<List<CVModel>> {
@@ -13,21 +16,60 @@ class CVListNotifier extends StateNotifier<List<CVModel>> {
   final _uuid = const Uuid();
 
   Future<void> _loadCVs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_key);
-    if (raw != null) {
-      final list = jsonDecode(raw) as List;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_key);
+      if (raw == null || raw.trim().isEmpty) {
+        state = [];
+        return;
+      }
+
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) {
+        throw const FormatException('Stored CV payload is not a JSON list.');
+      }
+
       state =
-          list.map((e) => CVModel.fromJson(e as Map<String, dynamic>)).toList();
+          decoded
+              .whereType<Map>()
+              .map(
+                (entry) => CVModel.fromJson(Map<String, dynamic>.from(entry)),
+              )
+              .toList();
+    } catch (error, stackTrace) {
+      AppLogger.warning(
+        'Failed to load saved CVs. Resetting local CV cache.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      state = [];
+      await _clearPersistedState();
     }
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      _key,
-      jsonEncode(state.map((e) => e.toJson()).toList()),
-    );
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        _key,
+        jsonEncode(state.map((e) => e.toJson()).toList()),
+      );
+    } catch (error, stackTrace) {
+      AppLogger.error('Failed to persist CV list', error, stackTrace);
+    }
+  }
+
+  Future<void> _clearPersistedState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_key);
+    } catch (error, stackTrace) {
+      AppLogger.warning(
+        'Failed to clear corrupted CV cache.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
   }
 
   Future<CVModel> create({String? templateId}) async {

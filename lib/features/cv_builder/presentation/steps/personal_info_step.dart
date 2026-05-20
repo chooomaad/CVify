@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../../../shared/models/cv_model.dart';
 
 class PersonalInfoStep extends StatefulWidget {
@@ -84,33 +86,34 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
   }
 
   Future<void> _pickPhoto() async {
-    final file = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 80,
-    );
-    if (file != null) {
-      setState(
-        () =>
-            _info = PersonalInfo(
-              firstName: _info.firstName,
-              lastName: _info.lastName,
-              title: _info.title,
-              email: _info.email,
-              phone: _info.phone,
-              city: _info.city,
-              country: _info.country,
-              summary: _info.summary,
-              photoPath: file.path,
-              linkedIn: _info.linkedIn,
-              website: _info.website,
-            ),
+    try {
+      final file = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
       );
+
+      if (file == null || !mounted) {
+        return;
+      }
+
+      setState(() => _info = _info.copyWith(photoPath: file.path));
       _save();
+    } catch (error, stackTrace) {
+      AppLogger.error('Failed to pick a profile photo', error, stackTrace);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to open the photo library right now.'),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final hasPhoto =
+        _info.photoPath != null && File(_info.photoPath!).existsSync();
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -125,11 +128,11 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
                         radius: 48,
                         backgroundColor: AppColors.surfaceVariant,
                         backgroundImage:
-                            _info.photoPath != null
+                            hasPhoto
                                 ? FileImage(File(_info.photoPath!))
                                 : null,
                         child:
-                            _info.photoPath == null
+                            !hasPhoto
                                 ? const Icon(
                                   Icons.person_rounded,
                                   size: 40,
