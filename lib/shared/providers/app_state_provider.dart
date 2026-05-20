@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/utils/app_logger.dart';
+import 'shared_preferences_provider.dart';
 
 class AppState {
   final bool isOnboarded;
@@ -27,24 +28,35 @@ class AppState {
 }
 
 class AppStateNotifier extends StateNotifier<AppState> {
-  AppStateNotifier() : super(const AppState()) {
-    _loadState();
-  }
+  AppStateNotifier(this._prefs) : super(_restoreState(_prefs));
 
-  Future<void> _loadState() async {
+  final SharedPreferences? _prefs;
+
+  static AppState _restoreState(SharedPreferences? prefs) {
+    final fallbackLang = _detectDeviceLang();
+    if (prefs == null) {
+      AppLogger.warning(
+        'SharedPreferences unavailable during startup. Using default app state.',
+      );
+      return AppState(langCode: fallbackLang);
+    }
+
     try {
-      final prefs = await SharedPreferences.getInstance();
       final storedLang = prefs.getString('langCode');
       final lang = _sanitizeLang(storedLang);
 
-      state = state.copyWith(
+      return AppState(
         isOnboarded: prefs.getBool('isOnboarded') ?? false,
         isDarkMode: prefs.getBool('isDarkMode') ?? false,
         langCode: lang,
       );
     } catch (error, stackTrace) {
-      AppLogger.error('Failed to load app state', error, stackTrace);
-      state = state.copyWith(langCode: _detectDeviceLang());
+      AppLogger.warning(
+        'Failed to restore app state from SharedPreferences.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return AppState(langCode: fallbackLang);
     }
   }
 
@@ -56,17 +68,34 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   static String _sanitizeLang(String? storedLang) {
     if (storedLang == 'en' || storedLang == 'fr') {
-      return storedLang!;
+      return storedLang;
     }
 
     return _detectDeviceLang();
   }
 
+  Future<SharedPreferences?> _resolvePrefs() async {
+    if (_prefs != null) {
+      return _prefs;
+    }
+
+    try {
+      return await SharedPreferences.getInstance();
+    } catch (error, stackTrace) {
+      AppLogger.warning(
+        'SharedPreferences could not be reopened after startup.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return null;
+    }
+  }
+
   Future<void> setOnboarded() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isOnboarded', true);
       state = state.copyWith(isOnboarded: true);
+      final prefs = await _resolvePrefs();
+      await prefs?.setBool('isOnboarded', true);
     } catch (error, stackTrace) {
       AppLogger.error('Failed to save onboarding state', error, stackTrace);
     }
@@ -76,9 +105,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
     final newValue = !state.isDarkMode;
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isDarkMode', newValue);
       state = state.copyWith(isDarkMode: newValue);
+      final prefs = await _resolvePrefs();
+      await prefs?.setBool('isDarkMode', newValue);
     } catch (error, stackTrace) {
       AppLogger.error('Failed to toggle dark mode', error, stackTrace);
     }
@@ -88,9 +117,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
     final sanitizedCode = _sanitizeLang(code);
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('langCode', sanitizedCode);
       state = state.copyWith(langCode: sanitizedCode);
+      final prefs = await _resolvePrefs();
+      await prefs?.setString('langCode', sanitizedCode);
     } catch (error, stackTrace) {
       AppLogger.error('Failed to save language preference', error, stackTrace);
     }
@@ -100,7 +129,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
 final appStateProvider = StateNotifierProvider<AppStateNotifier, AppState>((
   ref,
 ) {
-  return AppStateNotifier();
+  return AppStateNotifier(ref.watch(sharedPreferencesProvider));
 });
 
 final themeModeProvider = Provider<ThemeMode>((ref) {

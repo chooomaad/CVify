@@ -12,7 +12,13 @@ import '../../shared/providers/cv_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   final Widget child;
-  const HomeScreen({super.key, required this.child});
+  final String currentLocation;
+
+  const HomeScreen({
+    super.key,
+    required this.child,
+    required this.currentLocation,
+  });
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
@@ -69,8 +75,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final location = GoRouterState.of(context).matchedLocation;
-    final currentIdx = _indexFromLocation(location);
+    final currentIdx = _indexFromLocation(widget.currentLocation);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final navBg = isDark ? AppColors.darkSurface : AppColors.surface;
 
@@ -193,7 +198,6 @@ class _NavItem extends StatelessWidget {
                 color: color,
                 fontSize: 10,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                fontFamily: 'Inter',
               ),
             ),
           ],

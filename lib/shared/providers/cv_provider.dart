@@ -6,22 +6,27 @@ import 'package:uuid/uuid.dart';
 
 import '../../core/utils/app_logger.dart';
 import '../models/cv_model.dart';
+import 'shared_preferences_provider.dart';
 
 class CVListNotifier extends StateNotifier<List<CVModel>> {
-  CVListNotifier() : super([]) {
-    _loadCVs();
-  }
+  CVListNotifier(this._prefs) : super(_restoreCVs(_prefs));
 
   static const _key = 'cv_list';
   final _uuid = const Uuid();
+  final SharedPreferences? _prefs;
 
-  Future<void> _loadCVs() async {
+  static List<CVModel> _restoreCVs(SharedPreferences? prefs) {
+    if (prefs == null) {
+      AppLogger.warning(
+        'SharedPreferences unavailable during CV bootstrap. Starting with an empty list.',
+      );
+      return [];
+    }
+
     try {
-      final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString(_key);
       if (raw == null || raw.trim().isEmpty) {
-        state = [];
-        return;
+        return [];
       }
 
       final decoded = jsonDecode(raw);
@@ -29,46 +34,46 @@ class CVListNotifier extends StateNotifier<List<CVModel>> {
         throw const FormatException('Stored CV payload is not a JSON list.');
       }
 
-      state =
-          decoded
-              .whereType<Map>()
-              .map(
-                (entry) => CVModel.fromJson(Map<String, dynamic>.from(entry)),
-              )
-              .toList();
+      return decoded
+          .whereType<Map>()
+          .map((entry) => CVModel.fromJson(Map<String, dynamic>.from(entry)))
+          .toList();
     } catch (error, stackTrace) {
       AppLogger.warning(
-        'Failed to load saved CVs. Resetting local CV cache.',
+        'Failed to restore saved CVs. Resetting local CV cache.',
         error: error,
         stackTrace: stackTrace,
       );
-      state = [];
-      await _clearPersistedState();
+      return [];
+    }
+  }
+
+  Future<SharedPreferences?> _resolvePrefs() async {
+    if (_prefs != null) {
+      return _prefs;
+    }
+
+    try {
+      return await SharedPreferences.getInstance();
+    } catch (error, stackTrace) {
+      AppLogger.warning(
+        'SharedPreferences could not be reopened for CV persistence.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return null;
     }
   }
 
   Future<void> _save() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
+      final prefs = await _resolvePrefs();
+      await prefs?.setString(
         _key,
         jsonEncode(state.map((e) => e.toJson()).toList()),
       );
     } catch (error, stackTrace) {
       AppLogger.error('Failed to persist CV list', error, stackTrace);
-    }
-  }
-
-  Future<void> _clearPersistedState() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_key);
-    } catch (error, stackTrace) {
-      AppLogger.warning(
-        'Failed to clear corrupted CV cache.',
-        error: error,
-        stackTrace: stackTrace,
-      );
     }
   }
 
@@ -106,7 +111,7 @@ class CVListNotifier extends StateNotifier<List<CVModel>> {
 final cvListProvider = StateNotifierProvider<CVListNotifier, List<CVModel>>((
   ref,
 ) {
-  return CVListNotifier();
+  return CVListNotifier(ref.watch(sharedPreferencesProvider));
 });
 
 final currentCVProvider = StateProvider<CVModel?>((ref) => null);

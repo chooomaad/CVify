@@ -2,19 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_logger.dart';
+import '../../shared/providers/app_state_provider.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with TickerProviderStateMixin {
   late AnimationController _pulseController;
   Timer? _navigationTimer;
@@ -36,7 +38,10 @@ class _SplashScreenState extends State<SplashScreen>
       if (!mounted) return;
 
       try {
-        context.go('/home');
+        final isOnboarded = ref.read(appStateProvider).isOnboarded;
+        final nextRoute = isOnboarded ? '/home' : '/onboarding';
+        AppLogger.info('Splash navigation resolved to $nextRoute');
+        context.go(nextRoute);
       } catch (error, stackTrace) {
         AppLogger.error(
           'Failed to navigate away from splash screen',

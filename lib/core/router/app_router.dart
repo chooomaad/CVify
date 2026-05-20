@@ -40,7 +40,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const OnboardingScreen(),
       ),
       ShellRoute(
-        builder: (context, state, child) => HomeScreen(child: child),
+        builder:
+            (context, state, child) => HomeScreen(
+              child: child,
+              currentLocation: state.matchedLocation,
+            ),
         routes: [
           GoRoute(
             path: '/home',
