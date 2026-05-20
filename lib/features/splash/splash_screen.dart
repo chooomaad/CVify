@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,19 +15,12 @@ class SplashScreen extends ConsumerStatefulWidget {
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen>
-    with TickerProviderStateMixin {
-  late AnimationController _pulseController;
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   Timer? _navigationTimer;
 
   @override
   void initState() {
     super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
-
     _scheduleNavigation();
   }
 
@@ -55,7 +47,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   void dispose() {
     _navigationTimer?.cancel();
-    _pulseController.dispose();
     super.dispose();
   }
 
@@ -104,70 +95,49 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 children: [
                   // App icon
                   Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          gradient: AppColors.primaryGradient,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.35),
-                              blurRadius: 32,
-                              offset: const Offset(0, 12),
-                            ),
-                          ],
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      gradient: AppColors.primaryGradient,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.35),
+                          blurRadius: 32,
+                          offset: const Offset(0, 12),
                         ),
-                        child: const Icon(
-                          Icons.description_rounded,
-                          color: Colors.white,
-                          size: 52,
-                        ),
-                      )
-                      .animate()
-                      .scale(
-                        begin: const Offset(0.5, 0.5),
-                        end: const Offset(1, 1),
-                        duration: 700.ms,
-                        curve: Curves.elasticOut,
-                      )
-                      .fadeIn(duration: 500.ms),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.description_rounded,
+                      color: Colors.white,
+                      size: 52,
+                    ),
+                  ),
 
                   const SizedBox(height: 28),
 
                   // App name
                   Text(
-                        'CVify',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.displayMedium?.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -1,
-                        ),
-                      )
-                      .animate()
-                      .fadeIn(delay: 400.ms, duration: 600.ms)
-                      .slideY(
-                        begin: 0.3,
-                        end: 0,
-                        delay: 400.ms,
-                        duration: 600.ms,
-                      ),
+                    'CVify',
+                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -1,
+                    ),
+                  ),
 
                   const SizedBox(height: 10),
 
                   // Tagline
                   Text(
-                        'The intelligence behind your\nprofessional journey.',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                          height: 1.5,
-                        ),
-                      )
-                      .animate()
-                      .fadeIn(delay: 700.ms, duration: 600.ms)
-                      .slideY(begin: 0.2, end: 0, delay: 700.ms),
+                    'The intelligence behind your\nprofessional journey.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                      height: 1.5,
+                    ),
+                  ),
 
                   const SizedBox(height: 80),
 
@@ -184,7 +154,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         minHeight: 3,
                       ),
                     ),
-                  ).animate().fadeIn(delay: 900.ms, duration: 400.ms),
+                  ),
                 ],
               ),
             ),
@@ -211,7 +181,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     ),
                   ),
                 ],
-              ).animate().fadeIn(delay: 1200.ms, duration: 500.ms),
+              ),
             ),
           ],
         ),
