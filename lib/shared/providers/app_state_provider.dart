@@ -68,7 +68,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   static String _sanitizeLang(String? storedLang) {
     if (storedLang == 'en' || storedLang == 'fr') {
-      return storedLang;
+      return storedLang!;
     }
 
     return _detectDeviceLang();

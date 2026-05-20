@@ -42,8 +42,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       ShellRoute(
         builder:
             (context, state, child) => HomeScreen(
-              child: child,
               currentLocation: state.matchedLocation,
+              child: child,
             ),
         routes: [
           GoRoute(
