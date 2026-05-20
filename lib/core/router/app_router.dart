@@ -19,9 +19,12 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
   final initialLocation = isOnboarded ? '/home' : '/onboarding';
 
+  AppLogger.router('Creating GoRouter initialLocation=$initialLocation');
+
   return GoRouter(
     initialLocation: initialLocation,
     debugLogDiagnostics: false,
+    observers: [_AppRouterObserver()],
     errorBuilder: (context, state) {
       final error = state.error;
       if (error != null) {
@@ -38,19 +41,27 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/splash',
         name: 'splash',
-        builder: (context, state) => const SplashScreen(),
+        builder: (context, state) {
+          AppLogger.router('Building /splash');
+          return const SplashScreen();
+        },
       ),
       GoRoute(
         path: '/onboarding',
         name: 'onboarding',
-        builder: (context, state) => const OnboardingScreen(),
+        builder: (context, state) {
+          AppLogger.router('Building /onboarding');
+          return const OnboardingScreen();
+        },
       ),
       ShellRoute(
-        builder:
-            (context, state, child) => HomeScreen(
-              currentLocation: state.matchedLocation,
-              child: child,
-            ),
+        builder: (context, state, child) {
+          AppLogger.router('Shell ${state.matchedLocation}');
+          return HomeScreen(
+            currentLocation: state.matchedLocation,
+            child: child,
+          );
+        },
         routes: [
           GoRoute(
             path: '/home',
@@ -78,6 +89,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/cv-builder',
         name: 'cv-builder',
         builder: (context, state) {
+          AppLogger.router('Building /cv-builder extra=${state.extra}');
           return CVBuilderScreen(cvId: _readCvId(state.extra));
         },
       ),
@@ -86,13 +98,35 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'pdf-preview',
         builder: (context, state) {
           final cvId = _readCvId(state.extra) ?? '';
+          AppLogger.router('Building /pdf-preview cvId=$cvId');
           return PDFPreviewScreen(cvId: cvId);
         },
       ),
     ],
-    redirect: (_, __) => null,
+    redirect: (context, state) {
+      AppLogger.router('Redirect check uri=${state.uri}');
+      return null;
+    },
   );
 });
+
+class _AppRouterObserver extends NavigatorObserver {
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    AppLogger.navigation(
+      'PUSH ${route.settings.name ?? route.settings} <- ${previousRoute?.settings.name}',
+    );
+    super.didPush(route, previousRoute);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    AppLogger.navigation(
+      'POP ${route.settings.name} -> ${previousRoute?.settings.name}',
+    );
+    super.didPop(route, previousRoute);
+  }
+}
 
 String? _readCvId(Object? extra) {
   if (extra == null) {
@@ -130,6 +164,11 @@ class _RouteErrorScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(location, textAlign: TextAlign.center),
+                const SizedBox(height: 24),
+                FilledButton(
+                  onPressed: () => context.go('/home'),
+                  child: const Text('Retour accueil'),
+                ),
               ],
             ),
           ),

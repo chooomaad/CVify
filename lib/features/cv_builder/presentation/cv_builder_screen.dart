@@ -54,7 +54,6 @@ class _CVBuilderScreenState extends ConsumerState<CVBuilderScreen> {
 
   Future<void> _initCV() async {
     try {
-      await Future.delayed(const Duration(milliseconds: 200));
       if (!mounted) return;
 
       if (widget.cvId != null) {

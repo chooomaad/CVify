@@ -161,7 +161,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       try {
         final isOnboarded = ref.read(appStateProvider).isOnboarded;
         final nextRoute = isOnboarded ? '/home' : '/onboarding';
-        AppLogger.info('Splash navigation resolved to $nextRoute');
+        AppLogger.navigation('Splash -> $nextRoute');
         context.go(nextRoute);
       } catch (error, stackTrace) {
         AppLogger.error(

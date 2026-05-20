@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
+import 'app_fonts.dart';
 
 class AppTheme {
   AppTheme._();
@@ -9,6 +9,8 @@ class AppTheme {
   static ThemeData get lightTheme {
     final base = ThemeData(
       useMaterial3: true,
+      fontFamily: 'SF Pro',
+      fontFamilyFallback: AppFonts.fallbackFamilies,
       brightness: Brightness.light,
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
@@ -32,7 +34,7 @@ class AppTheme {
         systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
           statusBarColor: Colors.transparent,
         ),
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: AppFonts.inter(
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimary,
@@ -65,7 +67,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.inter(
+          textStyle: AppFonts.inter(
             fontSize: 15,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.1,
@@ -81,7 +83,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.inter(
+          textStyle: AppFonts.inter(
             fontSize: 15,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.1,
@@ -93,7 +95,7 @@ class AppTheme {
           foregroundColor: AppColors.primary,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          textStyle: GoogleFonts.inter(
+          textStyle: AppFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -126,17 +128,17 @@ class AppTheme {
           horizontal: 16,
           vertical: 14,
         ),
-        hintStyle: GoogleFonts.inter(
+        hintStyle: AppFonts.inter(
           color: AppColors.textTertiary,
           fontSize: 14,
           fontWeight: FontWeight.w400,
         ),
-        labelStyle: GoogleFonts.inter(
+        labelStyle: AppFonts.inter(
           color: AppColors.textSecondary,
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
-        floatingLabelStyle: GoogleFonts.inter(
+        floatingLabelStyle: AppFonts.inter(
           color: AppColors.primary,
           fontSize: 12,
           fontWeight: FontWeight.w500,
@@ -150,11 +152,11 @@ class AppTheme {
         unselectedItemColor: AppColors.textTertiary,
         elevation: 0,
         type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: GoogleFonts.inter(
+        selectedLabelStyle: AppFonts.inter(
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelStyle: GoogleFonts.inter(
+        unselectedLabelStyle: AppFonts.inter(
           fontSize: 10,
           fontWeight: FontWeight.w400,
         ),
@@ -186,7 +188,7 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.gray100,
         selectedColor: AppColors.primary,
-        labelStyle: GoogleFonts.inter(
+        labelStyle: AppFonts.inter(
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
@@ -199,7 +201,7 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.gray900,
-        contentTextStyle: GoogleFonts.inter(
+        contentTextStyle: AppFonts.inter(
           color: Colors.white,
           fontSize: 14,
           fontWeight: FontWeight.w500,
@@ -218,6 +220,8 @@ class AppTheme {
   static ThemeData get darkTheme {
     final base = ThemeData(
       useMaterial3: true,
+      fontFamily: 'SF Pro',
+      fontFamilyFallback: AppFonts.fallbackFamilies,
       brightness: Brightness.dark,
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
@@ -238,7 +242,7 @@ class AppTheme {
         systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
           statusBarColor: Colors.transparent,
         ),
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: AppFonts.inter(
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.darkTextPrimary,
@@ -286,11 +290,11 @@ class AppTheme {
           horizontal: 16,
           vertical: 14,
         ),
-        hintStyle: GoogleFonts.inter(
+        hintStyle: AppFonts.inter(
           color: AppColors.darkTextSecondary,
           fontSize: 14,
         ),
-        labelStyle: GoogleFonts.inter(
+        labelStyle: AppFonts.inter(
           color: AppColors.darkTextSecondary,
           fontSize: 14,
         ),
@@ -300,98 +304,98 @@ class AppTheme {
 
   static TextTheme _buildTextTheme(Color color) {
     return TextTheme(
-      displayLarge: GoogleFonts.inter(
+      displayLarge: AppFonts.inter(
         fontSize: 36,
         fontWeight: FontWeight.w800,
         color: color,
         letterSpacing: -1.5,
         height: 1.1,
       ),
-      displayMedium: GoogleFonts.inter(
+      displayMedium: AppFonts.inter(
         fontSize: 30,
         fontWeight: FontWeight.w800,
         color: color,
         letterSpacing: -1,
         height: 1.1,
       ),
-      displaySmall: GoogleFonts.inter(
+      displaySmall: AppFonts.inter(
         fontSize: 24,
         fontWeight: FontWeight.w700,
         color: color,
         letterSpacing: -0.8,
         height: 1.2,
       ),
-      headlineLarge: GoogleFonts.inter(
+      headlineLarge: AppFonts.inter(
         fontSize: 22,
         fontWeight: FontWeight.w700,
         color: color,
         letterSpacing: -0.5,
         height: 1.25,
       ),
-      headlineMedium: GoogleFonts.inter(
+      headlineMedium: AppFonts.inter(
         fontSize: 20,
         fontWeight: FontWeight.w700,
         color: color,
         letterSpacing: -0.4,
         height: 1.3,
       ),
-      headlineSmall: GoogleFonts.inter(
+      headlineSmall: AppFonts.inter(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: color,
         letterSpacing: -0.3,
         height: 1.35,
       ),
-      titleLarge: GoogleFonts.inter(
+      titleLarge: AppFonts.inter(
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: color,
         letterSpacing: -0.2,
         height: 1.4,
       ),
-      titleMedium: GoogleFonts.inter(
+      titleMedium: AppFonts.inter(
         fontSize: 15,
         fontWeight: FontWeight.w600,
         color: color,
         letterSpacing: -0.1,
         height: 1.4,
       ),
-      titleSmall: GoogleFonts.inter(
+      titleSmall: AppFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w600,
         color: color,
         height: 1.4,
       ),
-      bodyLarge: GoogleFonts.inter(
+      bodyLarge: AppFonts.inter(
         fontSize: 16,
         fontWeight: FontWeight.w400,
         color: color,
         height: 1.6,
       ),
-      bodyMedium: GoogleFonts.inter(
+      bodyMedium: AppFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w400,
         color: color,
         height: 1.6,
       ),
-      bodySmall: GoogleFonts.inter(
+      bodySmall: AppFonts.inter(
         fontSize: 13,
         fontWeight: FontWeight.w400,
         color: color,
         height: 1.5,
       ),
-      labelLarge: GoogleFonts.inter(
+      labelLarge: AppFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w600,
         color: color,
         letterSpacing: 0,
       ),
-      labelMedium: GoogleFonts.inter(
+      labelMedium: AppFonts.inter(
         fontSize: 12,
         fontWeight: FontWeight.w500,
         color: color,
       ),
-      labelSmall: GoogleFonts.inter(
+      labelSmall: AppFonts.inter(
         fontSize: 11,
         fontWeight: FontWeight.w500,
         color: color,

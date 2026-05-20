@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../core/theme/app_colors.dart';
+import '../../shared/extensions/launch_safe_animate.dart';
 import '../../shared/providers/app_state_provider.dart';
 
 class OnboardingData {
@@ -288,13 +289,16 @@ class _OnboardingPage extends StatelessWidget {
                   ),
                 ),
               )
-              .animate()
-              .fadeIn(duration: 600.ms)
-              .scale(
-                begin: const Offset(0.9, 0.9),
-                end: const Offset(1, 1),
-                duration: 600.ms,
-                curve: Curves.easeOut,
+              .launchEffect(
+                (w) => w
+                    .animate()
+                    .fadeIn(duration: 600.ms)
+                    .scale(
+                      begin: const Offset(0.9, 0.9),
+                      end: const Offset(1, 1),
+                      duration: 600.ms,
+                      curve: Curves.easeOut,
+                    ),
               ),
 
           // Title
@@ -307,9 +311,12 @@ class _OnboardingPage extends StatelessWidget {
                   height: 1.15,
                 ),
               )
-              .animate()
-              .fadeIn(delay: 200.ms, duration: 500.ms)
-              .slideY(begin: 0.2, end: 0, delay: 200.ms),
+              .launchEffect(
+                (w) => w
+                    .animate()
+                    .fadeIn(delay: 200.ms, duration: 500.ms)
+                    .slideY(begin: 0.2, end: 0, delay: 200.ms),
+              ),
 
           const SizedBox(height: 12),
 
@@ -320,7 +327,9 @@ class _OnboardingPage extends StatelessWidget {
               color: AppColors.textSecondary,
               height: 1.6,
             ),
-          ).animate().fadeIn(delay: 350.ms, duration: 500.ms),
+          ).launchEffect(
+            (w) => w.animate().fadeIn(delay: 350.ms, duration: 500.ms),
+          ),
 
           const SizedBox(height: 24),
 
@@ -360,9 +369,11 @@ class _OnboardingPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ).animate().fadeIn(
-                    delay: Duration(milliseconds: 400 + i * 100),
-                    duration: 400.ms,
+                  ).launchEffect(
+                    (w) => w.animate().fadeIn(
+                      delay: Duration(milliseconds: 400 + i * 100),
+                      duration: 400.ms,
+                    ),
                   ),
                 ),
               ),
@@ -405,7 +416,9 @@ class _OnboardingPage extends StatelessWidget {
                   ),
                 ),
               ),
-            ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+            ).launchEffect(
+              (w) => w.animate().fadeIn(delay: 400.ms, duration: 400.ms),
+            ),
 
           const SizedBox(height: 8),
         ],

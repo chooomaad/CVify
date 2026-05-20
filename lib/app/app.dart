@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../core/bootstrap/asset_guard.dart';
+import '../core/bootstrap/plugin_guard.dart';
+import '../core/config/startup_policy.dart';
 import '../core/l10n/translations.dart';
 import '../core/router/app_router.dart';
 import '../core/theme/app_theme.dart';
@@ -32,7 +34,11 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     ErrorWidget.builder = (details) {
-      debugPrint(details.toString());
+      AppLogger.error(
+        'ErrorWidget rendered',
+        details.exception,
+        details.stack ?? StackTrace.current,
+      );
       return Material(
         color: Colors.white,
         child: SafeArea(
@@ -58,20 +64,19 @@ class _MyAppState extends State<MyApp> {
     _initializeStartup();
   }
 
+  void _scheduleHeavyAnimations() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future<void>.delayed(const Duration(milliseconds: 600), () {
+        StartupPolicy.enableHeavyAnimations();
+        AppLogger.startup('Heavy launch animations enabled.');
+      });
+    });
+  }
+
   Future<void> _initializeStartup() async {
+    AppLogger.startup('Cold start bootstrap begin.');
     final warnings = <String>[];
     SharedPreferences? sharedPreferences;
-
-    try {
-      GoogleFonts.config.allowRuntimeFetching = false;
-    } catch (error, stackTrace) {
-      warnings.add('Google Fonts runtime config failed.');
-      AppLogger.warning(
-        'Failed to disable Google Fonts runtime fetching.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
 
     try {
       await SystemChrome.setPreferredOrientations([
@@ -83,6 +88,7 @@ class _MyAppState extends State<MyApp> {
           statusBarIconBrightness: Brightness.dark,
         ),
       );
+      AppLogger.startup('System UI configured.');
     } catch (error, stackTrace) {
       warnings.add('System UI configuration failed.');
       AppLogger.warning(
@@ -96,6 +102,7 @@ class _MyAppState extends State<MyApp> {
       sharedPreferences = await SharedPreferences.getInstance().timeout(
         const Duration(seconds: 4),
       );
+      AppLogger.startup('SharedPreferences ready.');
     } on TimeoutException catch (error, stackTrace) {
       warnings.add('SharedPreferences startup timed out.');
       AppLogger.warning(
@@ -112,6 +119,9 @@ class _MyAppState extends State<MyApp> {
       );
     }
 
+    warnings.addAll(await AssetGuard.verifyRequiredAssets());
+    warnings.addAll(await PluginGuard.verifyStartupPlugins());
+
     if (!mounted) return;
 
     setState(() {
@@ -119,6 +129,11 @@ class _MyAppState extends State<MyApp> {
       _startupWarnings = warnings;
       _startupComplete = true;
     });
+
+    AppLogger.startup(
+      'Cold start bootstrap complete. warnings=${warnings.length}',
+    );
+    _scheduleHeavyAnimations();
   }
 
   @override
@@ -166,6 +181,10 @@ class CVifyApp extends ConsumerWidget {
           'Startup completed with warnings: ${startupWarnings.join(' | ')}',
         );
       }
+
+      AppLogger.startup(
+        'Root shell build: theme=$themeMode lang=$langCode onboarded=${ref.read(appStateProvider).isOnboarded}',
+      );
 
       return TranslationsProvider(
         child: MaterialApp.router(

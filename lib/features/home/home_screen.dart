@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/l10n/translations.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_logger.dart';
+import '../../shared/extensions/launch_safe_animate.dart';
 import '../../shared/models/cv_model.dart';
 import '../../shared/models/template_model.dart';
 import '../../shared/providers/cv_provider.dart';
@@ -409,9 +410,17 @@ class _HeroBanner extends StatelessWidget {
             ],
           ),
         )
-        .animate()
-        .fadeIn(duration: 500.ms)
-        .slideY(begin: 0.08, end: 0, duration: 500.ms, curve: Curves.easeOut);
+        .launchEffect(
+          (w) => w
+              .animate()
+              .fadeIn(duration: 500.ms)
+              .slideY(
+                begin: 0.08,
+                end: 0,
+                duration: 500.ms,
+                curve: Curves.easeOut,
+              ),
+        );
   }
 }
 
@@ -485,9 +494,11 @@ class _QuickStats extends StatelessWidget {
                     ),
                   ],
                 ),
-              ).animate().fadeIn(
-                delay: Duration(milliseconds: 100 + e.key * 80),
-                duration: 400.ms,
+              ).launchEffect(
+                (w) => w.animate().fadeIn(
+                  delay: Duration(milliseconds: 100 + e.key * 80),
+                  duration: 400.ms,
+                ),
               ),
             );
           }).toList(),
@@ -623,7 +634,9 @@ class _CVListItem extends ConsumerWidget {
           ),
         ),
       ),
-    ).animate().fadeIn(duration: 400.ms).slideX(begin: 0.03, end: 0);
+    ).launchEffect(
+      (w) => w.animate().fadeIn(duration: 400.ms).slideX(begin: 0.03, end: 0),
+    );
   }
 }
 
@@ -730,9 +743,11 @@ class _TemplateHorizontalList extends StatelessWidget {
                   ),
                 ],
               ),
-            ).animate().fadeIn(
-              delay: Duration(milliseconds: i * 80),
-              duration: 400.ms,
+            ).launchEffect(
+              (w) => w.animate().fadeIn(
+                delay: Duration(milliseconds: i * 80),
+                duration: 400.ms,
+              ),
             ),
           );
         },
@@ -897,6 +912,8 @@ class _TipsCard extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().fadeIn(delay: 400.ms, duration: 500.ms);
+    ).launchEffect(
+      (w) => w.animate().fadeIn(delay: 400.ms, duration: 500.ms),
+    );
   }
 }

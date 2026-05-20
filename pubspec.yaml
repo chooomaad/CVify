@@ -20,19 +20,12 @@ dependencies:
   # Navigation
   go_router: ^13.2.0
 
-  # Local storage
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
-
   # PDF generation
   pdf: ^3.11.0
-  #printing: ^5.13.1
+  #printing: ^5.13.1  # disabled — avoids native printing plugin on iOS
 
   # Animations
   flutter_animate: ^4.5.0
-
-  # Google Fonts
-  google_fonts: ^6.2.1
 
   # Image picker
   image_picker: ^1.1.2
@@ -47,8 +40,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  hive_generator: ^2.0.1
-  build_runner: ^2.4.9
   flutter_launcher_icons: ^0.14.3
 
 flutter_launcher_icons:
@@ -72,5 +63,8 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/images/logo.png
     - assets/images/
     - assets/icons/
+
+  # Typography: SF Pro / system fallbacks via AppFonts (no google_fonts, no network).

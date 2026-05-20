@@ -17,6 +17,22 @@ class AppLogger {
     _log('ERROR', message, error: error, stackTrace: stackTrace);
   }
 
+  static void startup(String message) {
+    _log('STARTUP', message);
+  }
+
+  static void provider(String message) {
+    _log('PROVIDER', message);
+  }
+
+  static void router(String message) {
+    _log('ROUTER', message);
+  }
+
+  static void navigation(String message) {
+    _log('NAV', message);
+  }
+
   static void _log(
     String level,
     String message, {

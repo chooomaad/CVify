@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -98,6 +100,14 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
 
       setState(() => _info = _info.copyWith(photoPath: file.path));
       _save();
+    } on MissingPluginException catch (error, stackTrace) {
+      AppLogger.error('Image picker plugin missing', error, stackTrace);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Photo library is not available on this device.'),
+        ),
+      );
     } catch (error, stackTrace) {
       AppLogger.error('Failed to pick a profile photo', error, stackTrace);
       if (!mounted) return;

@@ -4,25 +4,29 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'app/app.dart';
+import 'core/utils/app_logger.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  AppLogger.startup('main() — offline-safe cold start.');
 
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
-    debugPrint(details.toString());
+    AppLogger.error(
+      'FlutterError',
+      details.exception,
+      details.stack ?? StackTrace.current,
+    );
   };
 
   PlatformDispatcher.instance.onError = (error, stack) {
-    debugPrint(error.toString());
-    debugPrint(stack.toString());
+    AppLogger.error('PlatformDispatcher error', error, stack);
     return true;
   };
 
   runZonedGuarded(() async {
     runApp(const MyApp());
   }, (error, stack) {
-    debugPrint(error.toString());
-    debugPrint(stack.toString());
+    AppLogger.error('runZonedGuarded uncaught', error, stack);
   });
 }

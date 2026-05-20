@@ -35,7 +35,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   static AppState _restoreState(SharedPreferences? prefs) {
     final fallbackLang = _detectDeviceLang();
     if (prefs == null) {
-      AppLogger.warning(
+      AppLogger.provider(
         'SharedPreferences unavailable during startup. Using default app state.',
       );
       return AppState(langCode: fallbackLang);
