@@ -8,47 +8,8 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_logger.dart';
 import '../../shared/providers/app_state_provider.dart';
 
-class SplashScreen extends ConsumerStatefulWidget {
-  const SplashScreen({super.key});
-
-  @override
-  ConsumerState<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends ConsumerState<SplashScreen> {
-  Timer? _navigationTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    _scheduleNavigation();
-  }
-
-  void _scheduleNavigation() {
-    _navigationTimer?.cancel();
-    _navigationTimer = Timer(const Duration(milliseconds: 2800), () {
-      if (!mounted) return;
-
-      try {
-        final isOnboarded = ref.read(appStateProvider).isOnboarded;
-        final nextRoute = isOnboarded ? '/home' : '/onboarding';
-        AppLogger.info('Splash navigation resolved to $nextRoute');
-        context.go(nextRoute);
-      } catch (error, stackTrace) {
-        AppLogger.error(
-          'Failed to navigate away from splash screen',
-          error,
-          stackTrace,
-        );
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _navigationTimer?.cancel();
-    super.dispose();
-  }
+class SplashScaffold extends StatelessWidget {
+  const SplashScaffold({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +24,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         ),
         child: Stack(
           children: [
-            // Background decorative circles
             Positioned(
               top: -80,
               right: -60,
@@ -88,12 +48,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 ),
               ),
             ),
-            // Main content
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // App icon
                   Container(
                     width: 100,
                     height: 100,
@@ -114,10 +72,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                       size: 52,
                     ),
                   ),
-
                   const SizedBox(height: 28),
-
-                  // App name
                   Text(
                     'CVify',
                     style: Theme.of(context).textTheme.displayMedium?.copyWith(
@@ -126,10 +81,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                       letterSpacing: -1,
                     ),
                   ),
-
                   const SizedBox(height: 10),
-
-                  // Tagline
                   Text(
                     'The intelligence behind your\nprofessional journey.',
                     textAlign: TextAlign.center,
@@ -138,10 +90,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                       height: 1.5,
                     ),
                   ),
-
                   const SizedBox(height: 80),
-
-                  // Loading indicator
                   SizedBox(
                     width: 140,
                     child: ClipRRect(
@@ -158,8 +107,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 ],
               ),
             ),
-
-            // Bottom badge
             Positioned(
               bottom: 48,
               left: 0,
@@ -187,5 +134,53 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         ),
       ),
     );
+  }
+}
+
+class SplashScreen extends ConsumerStatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  Timer? _navigationTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleNavigation();
+  }
+
+  void _scheduleNavigation() {
+    _navigationTimer?.cancel();
+    _navigationTimer = Timer(const Duration(milliseconds: 350), () {
+      if (!mounted) return;
+
+      try {
+        final isOnboarded = ref.read(appStateProvider).isOnboarded;
+        final nextRoute = isOnboarded ? '/home' : '/onboarding';
+        AppLogger.info('Splash navigation resolved to $nextRoute');
+        context.go(nextRoute);
+      } catch (error, stackTrace) {
+        AppLogger.error(
+          'Failed to navigate away from splash screen',
+          error,
+          stackTrace,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _navigationTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const SplashScaffold();
   }
 }

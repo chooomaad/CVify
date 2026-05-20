@@ -11,10 +11,16 @@ import '../../features/premium/premium_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/splash/splash_screen.dart';
 import '../../features/templates/templates_screen.dart';
+import '../../shared/providers/app_state_provider.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
+  final isOnboarded = ref.watch(
+    appStateProvider.select((state) => state.isOnboarded),
+  );
+  final initialLocation = isOnboarded ? '/home' : '/onboarding';
+
   return GoRouter(
-    initialLocation: '/splash',
+    initialLocation: initialLocation,
     debugLogDiagnostics: false,
     errorBuilder: (context, state) {
       final error = state.error;
