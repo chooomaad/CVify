@@ -40,11 +40,18 @@ dependencies:
   cached_network_image: ^3.4.1
   intl: any
 
-# path_provider_foundation 2.4.x (unified iOS/macOS Swift rewrite) causes
-# EXC_BAD_ACCESS (SIGSEGV) in PathProviderPlugin.register(with:) on iOS 13
-# Release builds. 2.3.2 is the last stable pre-refactor version.
+# path_provider_foundation 2.3.0+ renamed the Swift class from
+# SwiftPathProviderPlugin → PathProviderPlugin and added non-lazy registration
+# (the plugin sets up the FlutterMethodChannel immediately during register(with:)
+# instead of lazily on first Dart call). On iOS 13-15 this causes:
+#   EXC_BAD_ACCESS SIGSEGV KERN_INVALID_ADDRESS 0x0000000000000000
+# inside PathProviderPlugin.register(with:), crashing before runApp().
+#
+# 2.2.4 is the last version that uses SwiftPathProviderPlugin (lazy registration).
+# It does not access registrar.messenger() during registration, so the nil
+# binary-messenger issue cannot occur.
 dependency_overrides:
-  path_provider_foundation: 2.3.2
+  path_provider_foundation: 2.2.4
 
 dev_dependencies:
   flutter_test:

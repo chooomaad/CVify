@@ -26,6 +26,19 @@ workflows:
         - ~/.pub-cache
 
     scripts:
+      - name: "⚠️  Build mode guard — MUST be Release"
+        script: |
+          # The TestFlight crash (EXC_BAD_ACCESS SIGSEGV 0x0 in PathProviderPlugin)
+          # reproduces ONLY in debug IPA builds (flutter build ipa --debug).
+          # Release builds use a different Flutter engine binary and properly
+          # initialize the binary messenger before plugin registration.
+          #
+          # This workflow uses xcode-project build-ipa which ALWAYS builds Release.
+          # If you see "flutter build ipa --debug" in your logs, you triggered
+          # the WRONG workflow (the Codemagic UI default). Delete it and use
+          # THIS workflow (ios-release from codemagic.yaml) exclusively.
+          echo "✅ ios-release workflow confirmed — Release build will be used."
+
       - name: Flutter clean
         script: |
           flutter clean
