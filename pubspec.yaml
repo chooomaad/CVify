@@ -40,6 +40,12 @@ dependencies:
   cached_network_image: ^3.4.1
   intl: any
 
+# path_provider_foundation 2.4.x (unified iOS/macOS Swift rewrite) causes
+# EXC_BAD_ACCESS (SIGSEGV) in PathProviderPlugin.register(with:) on iOS 13
+# Release builds. 2.3.2 is the last stable pre-refactor version.
+dependency_overrides:
+  path_provider_foundation: 2.3.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

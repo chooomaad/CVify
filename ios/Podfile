@@ -34,6 +34,21 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+
+      # Swift 5.0 explicit — avoids ABI mismatch between pod Swift modules
+      # compiled with different toolchains on CI (Codemagic Xcode 15/16).
+      config.build_settings['SWIFT_VERSION'] = '5.0'
+
+      # Ensures Swift runtime is embedded in Release archives even when the
+      # linker's auto-detection fails. Prevents EXC_BAD_ACCESS in Swift plugin
+      # register(with:) calls (PathProviderPlugin, SharedPreferencesPlugin, etc.).
+      config.build_settings['ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES'] = 'YES'
+
+      # Disable arm64 for simulator builds — avoids "building for iOS Simulator,
+      # but linking in object file built for iOS" errors on Apple Silicon Macs.
+      if config.name == 'Debug' || config.name == 'Profile'
+        config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+      end
     end
   end
 end

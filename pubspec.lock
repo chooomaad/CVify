@@ -582,13 +582,13 @@ packages:
     source: hosted
     version: "2.2.19"
   path_provider_foundation:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: path_provider_foundation
-      sha256: "16eef174aacb07e09c351502740fa6254c165757638eba1e9116b0a781201bbd"
+      sha256: "5a7999be66e000916500be4f15a3633ebceb8302719b47b9cc49ce924125350f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.2"
+    version: "2.3.2"
   path_provider_linux:
     dependency: transitive
     description:
