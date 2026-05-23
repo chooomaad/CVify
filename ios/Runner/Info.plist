@@ -77,6 +77,15 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>CVify sauvegarde des photos dans votre galerie.</string>
 
+	<!-- Réseau local — requis quand NSBonjourServices est déclaré (Flutter debug/profile) -->
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>CVify utilise le réseau local pour les outils de développement Flutter.</string>
+
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_dartobservatory._tcp</string>
+	</array>
+
 	<!-- Performance iOS -->
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
