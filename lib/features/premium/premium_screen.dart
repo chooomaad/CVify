@@ -243,7 +243,7 @@ class _FeatureGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
-      childAspectRatio: 1.45,
+      childAspectRatio: 1.25,
       children:
           features
               .asMap()
