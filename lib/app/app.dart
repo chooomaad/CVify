@@ -51,7 +51,7 @@ class _MyAppState extends State<MyApp> {
                   Icon(Icons.error_outline_rounded, size: 48),
                   SizedBox(height: 16),
                   Text(
-                    'CVify a rencontre une erreur, mais l application reste ouverte.',
+                    'CVify a rencontré une erreur, mais l\'application reste ouverte.',
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -68,7 +68,7 @@ class _MyAppState extends State<MyApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future<void>.delayed(const Duration(milliseconds: 600), () {
         StartupPolicy.enableHeavyAnimations();
-        AppLogger.startup('Heavy launch animations enabled.');
+        AppLogger.startup('Heavy animations enabled.');
       });
     });
   }
@@ -88,14 +88,9 @@ class _MyAppState extends State<MyApp> {
           statusBarIconBrightness: Brightness.dark,
         ),
       );
-      AppLogger.startup('System UI configured.');
-    } catch (error, stackTrace) {
+    } catch (e, st) {
       warnings.add('System UI configuration failed.');
-      AppLogger.warning(
-        'Failed to configure system UI during startup.',
-        error: error,
-        stackTrace: stackTrace,
-      );
+      AppLogger.warning('Failed to configure system UI.', error: e, stackTrace: st);
     }
 
     try {
@@ -103,20 +98,12 @@ class _MyAppState extends State<MyApp> {
         const Duration(seconds: 4),
       );
       AppLogger.startup('SharedPreferences ready.');
-    } on TimeoutException catch (error, stackTrace) {
+    } on TimeoutException catch (e, st) {
       warnings.add('SharedPreferences startup timed out.');
-      AppLogger.warning(
-        'SharedPreferences timed out during startup.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-    } catch (error, stackTrace) {
+      AppLogger.warning('SharedPreferences timed out.', error: e, stackTrace: st);
+    } catch (e, st) {
       warnings.add('SharedPreferences startup failed.');
-      AppLogger.warning(
-        'SharedPreferences failed during startup.',
-        error: error,
-        stackTrace: stackTrace,
-      );
+      AppLogger.warning('SharedPreferences failed.', error: e, stackTrace: st);
     }
 
     warnings.addAll(await AssetGuard.verifyRequiredAssets());
@@ -130,16 +117,17 @@ class _MyAppState extends State<MyApp> {
       _startupComplete = true;
     });
 
-    AppLogger.startup(
-      'Cold start bootstrap complete. warnings=${warnings.length}',
-    );
+    AppLogger.startup('Bootstrap complete. warnings=${warnings.length}');
     _scheduleHeavyAnimations();
   }
 
   @override
   Widget build(BuildContext context) {
     if (!_startupComplete) {
-      return const _StartupLoadingApp();
+      return const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: SplashScaffold(),
+      );
     }
 
     return ProviderScope(
@@ -148,18 +136,6 @@ class _MyAppState extends State<MyApp> {
         sharedPreferencesProvider.overrideWithValue(_sharedPreferences),
       ],
       child: CVifyApp(startupWarnings: _startupWarnings),
-    );
-  }
-}
-
-class _StartupLoadingApp extends StatelessWidget {
-  const _StartupLoadingApp();
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: SplashScaffold(),
     );
   }
 }
@@ -177,14 +153,8 @@ class CVifyApp extends ConsumerWidget {
       final langCode = ref.watch(langCodeProvider);
 
       if (startupWarnings.isNotEmpty) {
-        AppLogger.warning(
-          'Startup completed with warnings: ${startupWarnings.join(' | ')}',
-        );
+        AppLogger.warning('Startup warnings: ${startupWarnings.join(' | ')}');
       }
-
-      AppLogger.startup(
-        'Root shell build: theme=$themeMode lang=$langCode onboarded=${ref.read(appStateProvider).isOnboarded}',
-      );
 
       return TranslationsProvider(
         child: MaterialApp.router(
@@ -204,11 +174,7 @@ class CVifyApp extends ConsumerWidget {
         ),
       );
     } catch (error, stackTrace) {
-      AppLogger.error(
-        'Failed to build the root application shell',
-        error,
-        stackTrace,
-      );
+      AppLogger.error('Failed to build root shell', error, stackTrace);
       return const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: _StartupFailureScreen(),
@@ -233,7 +199,7 @@ class _StartupFailureScreen extends StatelessWidget {
                 Icon(Icons.error_outline_rounded, size: 48),
                 SizedBox(height: 16),
                 Text(
-                  'CVify a rencontre une erreur lors du chargement de l interface.',
+                  'CVify a rencontré une erreur lors du chargement.',
                   textAlign: TextAlign.center,
                 ),
               ],

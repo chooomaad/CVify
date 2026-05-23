@@ -304,7 +304,7 @@ class _HomeAppBar extends StatelessWidget {
       ),
       actions: [
         GestureDetector(
-          onTap: () => context.go('/settings'),
+          onTap: () => context.push('/profile'),
           child: Container(
             width: 38,
             height: 38,

@@ -32,54 +32,59 @@
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 
+	<!-- URL Scheme pour Supabase deep links (email confirmation, reset password) -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>io.cvify.app</string>
+			</array>
+		</dict>
+	</array>
+
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 
+	<!-- Écran de lancement -->
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 
+	<!-- Orientation portrait uniquement -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 
+	<!-- Permissions photo & caméra -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>CVify needs access to your photo library.</string>
+	<string>CVify accède à votre galerie pour ajouter votre photo de profil et votre photo de CV.</string>
 
+	<key>NSCameraUsageDescription</key>
+	<string>CVify utilise l'appareil photo pour prendre votre photo de profil.</string>
+
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>CVify sauvegarde des photos dans votre galerie.</string>
+
+	<!-- Performance iOS -->
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	
-	<key>NSCameraUsageDescription</key>
-	<string>CVify needs camera access to take profile photos.</string>
 
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>CVify needs permission to save photos.</string>
-
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>CVify utilise le réseau local pour détecter et connecter certains services nécessaires au bon fonctionnement de l'application.</string>
-
-	<key>NSBonjourServices</key>
-	<array>
-		<string>_dartobservatory._tcp</string>
-	</array>
-
+	<!-- App Store : pas de chiffrement supplémentaire -->
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>
