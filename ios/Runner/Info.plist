@@ -55,17 +55,25 @@
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 
-	<!-- Orientation portrait uniquement -->
+	<!-- Orientation portrait uniquement (iPhone) -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 
+	<!-- iPad : toutes les orientations requises par Apple pour le multitâche.
+	     UIRequiresFullScreen désactive le Split View / Slide Over et
+	     permet de rester en portrait sans déclencher l'erreur 90474. -->
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+
+	<key>UIRequiresFullScreen</key>
+	<true/>
 
 	<!-- Permissions photo & caméra -->
 	<key>NSPhotoLibraryUsageDescription</key>
