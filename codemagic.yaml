@@ -15,10 +15,15 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.choumad.cvify
 
+    # Only cache pub packages — NOT CocoaPods.
+    # Caching ~/Library/Caches/CocoaPods caused stale Pods project files
+    # (xcodeproj) to be reused across builds, making pod install a no-op
+    # in ~1 s and leaving old privacy-bundle references in place.
+    # A fresh pod install takes ~25 s and is required for post_install
+    # hooks (MACH_O_TYPE, CODE_SIGNING_ALLOWED, etc.) to take effect.
     cache:
       cache_paths:
         - ~/.pub-cache
-        - ~/Library/Caches/CocoaPods
 
     scripts:
       - name: Flutter clean
@@ -38,21 +43,31 @@ workflows:
         script: |
           flutter analyze
 
+      - name: Clean Xcode DerivedData
+        script: |
+          # DerivedData persists across builds on the same Codemagic machine.
+          # A stale cache causes xcodebuild archive to complete in ~3 s using
+          # old object files that reference non-existent privacy-bundle binaries,
+          # producing "Build input file cannot be found" errors.
+          rm -rf ~/Library/Developer/Xcode/DerivedData
+
       - name: Install CocoaPods
         script: |
           cd ios
-          pod install
+          pod install --repo-update
           cd ..
 
       - name: Apply provisioning profiles
         script: |
           xcode-project use-profiles
 
-      - name: Build App Store IPA
+      - name: Build App Store IPA (Release)
         script: |
+          # xcode-project build-ipa always builds Release — never --debug.
+          # It calls xcodebuild archive + exportArchive directly (not flutter build ipa).
           xcode-project build-ipa \
-          --workspace ios/Runner.xcworkspace \
-          --scheme Runner
+            --workspace ios/Runner.xcworkspace \
+            --scheme Runner
 
     artifacts:
       - build/ios/ipa/*.ipa

@@ -33,41 +33,56 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
 
-    # ── Privacy Manifest bundle fix (Xcode 15+) ───────────────────────────────
-    # CocoaPods generates *_privacy bundle targets for pods that ship a
-    # PrivacyInfo.xcprivacy manifest (sqflite, url_launcher_ios,
-    # shared_preferences_foundation, etc.).
-    # Xcode 15 incorrectly treats these resource-only bundles as code-signed
-    # binaries and looks for an executable inside them during Archive, producing:
-    #   "Build input file cannot be found: .../<name>_privacy.bundle/<name>_privacy"
-    # Setting CODE_SIGNING_ALLOWED=NO on bundle product targets tells the build
-    # system they are plain resource bundles with no binary to sign or install.
-    if target.respond_to?(:product_type) &&
-       target.product_type == 'com.apple.product-type.bundle'
-      target.build_configurations.each do |config|
-        config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
-      end
-    end
-    # ─────────────────────────────────────────────────────────────────────────
-
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
 
       # Explicit Swift 5.0 — avoids ABI mismatch between pod Swift modules
       # compiled with different toolchains on CI (Codemagic Xcode 15/16).
       config.build_settings['SWIFT_VERSION'] = '5.0'
+    end
 
-      # Guarantees Swift runtime is embedded in Release archives even when the
-      # linker's auto-detection fails. Prevents EXC_BAD_ACCESS in Swift plugin
-      # register(with:) calls (PathProviderPlugin, SharedPreferencesPlugin, etc.).
-      # Skip bundle targets — they have no executable to embed into.
-      unless target.respond_to?(:product_type) &&
-             target.product_type == 'com.apple.product-type.bundle'
+    # ── Privacy Manifest bundle fix (Xcode 15+ / CocoaPods) ──────────────────
+    #
+    # CocoaPods generates *_privacy targets for pods that ship PrivacyInfo.xcprivacy:
+    #   sqflite_darwin_privacy, url_launcher_ios_privacy,
+    #   shared_preferences_foundation_privacy, path_provider_foundation_privacy, …
+    #
+    # These targets are pure resource bundles (no Swift/ObjC source).
+    # CocoaPods generates them with product_type = com.apple.product-type.bundle,
+    # which Xcode 15 treats as a loadable bundle — meaning it expects a Mach-O
+    # binary at sqflite_darwin_privacy.bundle/sqflite_darwin_privacy.
+    # Because there are no source files, the binary never gets linked, and
+    # the Archive phase fails with "Build input file cannot be found".
+    #
+    # Fix: For every *_privacy target, force MACH_O_TYPE to empty string.
+    # An empty MACH_O_TYPE on a .bundle target tells the linker to create a
+    # resource-only wrapper with NO executable inside — which is correct for
+    # a bundle containing only PrivacyInfo.xcprivacy.
+    # CODE_SIGNING_ALLOWED/REQUIRED/IDENTITY are cleared for the same reason:
+    # resource-only bundles have nothing to sign.
+    if target.name.end_with?('_privacy')
+      target.build_configurations.each do |config|
+        config.build_settings['MACH_O_TYPE']             = ''
+        config.build_settings['CODE_SIGNING_ALLOWED']    = 'NO'
+        config.build_settings['CODE_SIGNING_REQUIRED']   = 'NO'
+        config.build_settings['CODE_SIGN_IDENTITY']      = ''
+        config.build_settings['SKIP_INSTALL']            = 'NO'
+      end
+    end
+    # ─────────────────────────────────────────────────────────────────────────
+
+    # Guarantees Swift runtime is embedded in Release archives for all
+    # non-bundle pod targets (PathProviderPlugin, SharedPreferencesPlugin,
+    # image_picker_ios, url_launcher_ios, etc.).
+    unless target.name.end_with?('_privacy')
+      target.build_configurations.each do |config|
         config.build_settings['ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES'] = 'YES'
       end
+    end
 
-      # Disable arm64 for simulator builds — avoids "building for iOS Simulator,
-      # but linking in object file built for iOS" errors on Apple Silicon Macs.
+    # Disable arm64 for simulator — avoids "building for iOS Simulator,
+    # but linking in object file built for iOS" on Apple Silicon Macs.
+    target.build_configurations.each do |config|
       if config.name == 'Debug' || config.name == 'Profile'
         config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
       end
