@@ -336,6 +336,8 @@ class _TemplatePreview extends StatelessWidget {
         return _CreativePreview(template: template);
       case TemplateLayout.ats:
         return _AtsPreview(template: template);
+      case TemplateLayout.tech:
+        return _TechPreview(template: template);
     }
   }
 }
@@ -939,6 +941,167 @@ class _AtsPreview extends StatelessWidget {
                     color: teal.withValues(alpha: 0.15),
                   ),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. TECH preview — dark header, green accent, skill badges, timeline
+// ─────────────────────────────────────────────────────────────────────────────
+class _TechPreview extends StatelessWidget {
+  final TemplateModel template;
+  const _TechPreview({required this.template});
+
+  @override
+  Widget build(BuildContext context) {
+    final green = template.colors.first;
+    const dark = Color(0xFF0F172A);
+    const codeBg = Color(0xFFF1F5F9);
+    const border = Color(0xFFCBD5E1);
+
+    return Container(
+      color: const Color(0xFFF8FAFC),
+      child: Center(
+        child: Container(
+          width: 170,
+          height: 195,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.12),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              // Dark header
+              Container(
+                height: 54,
+                color: dark,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(height: 6, width: 80, color: Colors.white),
+                        const SizedBox(height: 4),
+                        Container(height: 3, width: 55, color: green),
+                      ],
+                    ),
+                    Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: green,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Body
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Skill badges
+                      Container(height: 3, width: 50, color: green.withValues(alpha: 0.8)),
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          Container(
+                            height: 8, width: 28,
+                            decoration: BoxDecoration(
+                              color: codeBg,
+                              borderRadius: BorderRadius.circular(2),
+                              border: Border.all(color: border, width: 0.5),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Container(
+                            height: 8, width: 24,
+                            decoration: BoxDecoration(
+                              color: codeBg,
+                              borderRadius: BorderRadius.circular(2),
+                              border: Border.all(color: border, width: 0.5),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Container(
+                            height: 8, width: 32,
+                            decoration: BoxDecoration(
+                              color: codeBg,
+                              borderRadius: BorderRadius.circular(2),
+                              border: Border.all(color: border, width: 0.5),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // Timeline experience
+                      Container(height: 3, width: 44, color: green.withValues(alpha: 0.8)),
+                      const SizedBox(height: 5),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            children: [
+                              Container(
+                                width: 6, height: 6,
+                                decoration: BoxDecoration(
+                                  color: green,
+                                  borderRadius: BorderRadius.circular(1),
+                                ),
+                              ),
+                              Container(width: 1, height: 18, color: border),
+                            ],
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ..._miniLines(2, const Color(0xFFD1D5DB), 90),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // Projects
+                      Container(height: 3, width: 55, color: green.withValues(alpha: 0.8)),
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          Container(
+                            width: 10, height: 10,
+                            decoration: BoxDecoration(
+                              color: codeBg,
+                              borderRadius: BorderRadius.circular(2),
+                              border: Border.all(color: green, width: 0.5),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(child: Column(children: _miniLines(1, const Color(0xFFD1D5DB), 100))),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),

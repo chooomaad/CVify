@@ -50,6 +50,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         password: _passwordCtrl.text,
         fullName: _nameCtrl.text.trim().isNotEmpty ? _nameCtrl.text.trim() : null,
       );
+      // Déconnexion immédiate pour éviter la connexion automatique
+      await ref.read(authServiceProvider).signOut();
       if (mounted) setState(() => _registrationSuccess = true);
     } on AuthException catch (e) {
       if (mounted) setState(() => _errorMessage = e.message);

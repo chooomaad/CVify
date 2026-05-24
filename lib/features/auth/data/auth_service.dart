@@ -80,7 +80,45 @@ class AuthService {
     }
   }
 
-  // ─── Réinitialisation mot de passe ───────────────────────────────────────
+  // ─── Envoi OTP email ─────────────────────────────────────────────────────
+
+  Future<void> sendOtp(String email) async {
+    try {
+      await _client.auth.signInWithOtp(
+        email: email.trim(),
+        shouldCreateUser: false,
+      );
+      AppLogger.info('OTP envoyé: ${email.trim()}');
+    } on AuthException catch (e) {
+      throw _mapAuthException(e);
+    } catch (e, st) {
+      AppLogger.error('Erreur envoi OTP', e, st);
+      throw AuthException('Impossible d\'envoyer le code. Vérifiez votre connexion.');
+    }
+  }
+
+  // ─── Vérification OTP ────────────────────────────────────────────────────
+
+  Future<void> verifyOtp({
+    required String email,
+    required String token,
+  }) async {
+    try {
+      await _client.auth.verifyOTP(
+        email: email.trim(),
+        token: token.trim(),
+        type: OtpType.email,
+      );
+      AppLogger.info('OTP vérifié: ${email.trim()}');
+    } on AuthException catch (e) {
+      throw _mapAuthException(e);
+    } catch (e, st) {
+      AppLogger.error('Erreur vérification OTP', e, st);
+      throw AuthException('Code invalide ou expiré. Demandez un nouveau code.');
+    }
+  }
+
+  // ─── Réinitialisation mot de passe (lien) ────────────────────────────────
 
   Future<void> resetPassword(String email) async {
     try {
@@ -151,6 +189,12 @@ class AuthService {
     }
     if (msg.contains('password should be at least')) {
       return AuthException('Le mot de passe doit contenir au moins 6 caractères.');
+    }
+    if (msg.contains('otp') || msg.contains('token has expired') || msg.contains('invalid token')) {
+      return AuthException('Code invalide ou expiré. Demandez un nouveau code.');
+    }
+    if (msg.contains('user not found') || msg.contains('no user found')) {
+      return AuthException('Aucun compte trouvé avec cet email.');
     }
     if (msg.contains('rate limit')) {
       return AuthException('Trop de tentatives. Veuillez patienter quelques minutes.');
